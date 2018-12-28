@@ -1,0 +1,7 @@
+{
+  "javascript.validate.enable": false,
+  "standard.enable": false,
+  "standard.autoFixOnSave": false,
+  "eslint.enable": true,
+  "eslint.autoFixOnSave": true,
+}
