@@ -1,0 +1,84 @@
+@require '../helpers/above-and-below'
+
+.post
+  display: grid
+  max-width: 1170px
+  border-bottom: 1px solid var(--dark-gray)
+  background-color: #fff
+  grid-template-columns: auto auto minmax(auto, 1170px)
+
+.scoreWrap
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-items: center
+  min-width: 48px
+  background-color: var(--light-gray)
+  user-select: none
+
+.score
+  margin: 4px 0
+  color: var(--dark-gray)
+  font-weight: 600
+  font-size: 14px
+
+.iconArrow
+  width: 18px
+  height: @width
+  transition: fill .2s ease-in-out
+  fill: var(--mid-gray)
+
+.iconUpArrow
+  transform: rotate(-90deg)
+  composes: iconArrow
+
+  &:hover
+    fill: var(--red)
+
+.iconDownArrow
+  transform: rotate(90deg)
+  composes: iconArrow
+
+  &:hover
+    fill: var(--blue)
+
+.thumbnailCell
+  align-self: center
+
+.thumbnail
+  align-self: center
+  margin: 8px
+  width: 80px
+  height: 60px
+  border-radius: 4px
+  background-color: var(--lighter-gray)
+  object-fit: cover
+
+  +below(400px)
+    display: none
+
+.content
+  margin: 8px
+  color: var(--gray)
+  font-size: 12px
+  justify-self: stretch
+
+.postTitle
+  z-index: 10
+  display: inline
+  margin: 0
+  margin-right: 8px
+  font-weight: 600
+  font-size: 18px
+  line-height: 1
+
+  > a
+    color: var(--dark-gray)
+    text-decoration: none
+    transition: color .4s ease-out
+
+  > a:visited
+    color: var(--mid-gray)
+
+.linkHost
+  display: inline-block

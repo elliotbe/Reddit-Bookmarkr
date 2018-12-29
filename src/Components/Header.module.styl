@@ -1,0 +1,69 @@
+@require '../helpers/above-and-below'
+
+.header
+  display: grid
+  align-items: center
+  padding: 0 16px
+  min-height: 80px
+  background-color: var(--mid-gray)
+  color: #fff
+  grid-template-columns: repeat(3, 1fr)
+
+.label
+  display: block
+
+.select
+  // margin-top: 6px
+  margin-right: 4px
+  width: 112px
+  text-transform: capitalize
+
+.button
+  position: relative
+  top: -1px
+  padding: 2px
+  font-weight: bold
+  font-size: 10px
+
+.title
+  margin: 0
+  text-align: center
+
+.formInput, .input
+  text-align: right
+
+.input
+  margin-left: -4px
+  padding: 4px
+  width: 100%
+  border: none
+  background-color: transparent
+  color: #fff
+  font-size: 14px
+  font-family: inherit
+
+  &:focus
+    outline: none
+
+  &::placeholder
+    color: var(--light-gray)
+    font-style: italic
+
++below(600px)
+  .header
+    padding: 16px
+    grid-template-columns: 1fr
+    grid-row-gap: 8px
+
+  .formInput, .input, .formSelect
+    text-align: center
+
+  .formSelect
+    order: 3
+
+  .formSelect > .label
+    display: inline
+
+  .select
+    display: inline
+    margin-left: 8px
