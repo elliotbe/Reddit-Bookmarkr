@@ -130,7 +130,7 @@ class App extends React.Component {
   @bound
   handleRemoveSubs (event) {
     const { subReddits, selected } = this.state
-    if (selected < 2) {
+    if (subReddits.length < 3) {
       return alert('You are not supposed to delete this')
     }
     if (selected === subReddits.length - 1) {
@@ -146,7 +146,6 @@ class App extends React.Component {
     const { selected, subReddits } = this.state
     const index = subReddits[selected].postsList
       .findIndex(item => id === item.id)
-
     const isSaved = subReddits[selected].postsList[index].saved
     const toogleSaved = subReddits[selected].postsList[index].saved === false
 
@@ -158,7 +157,7 @@ class App extends React.Component {
       const newBookmarks = subReddits[1].postsList
         .filter(item => id !== item.id)
 
-      this.setState(state => (
+      return this.setState(state => (
         state.subReddits[1].postsList = newBookmarks
       ))
     }
@@ -167,7 +166,7 @@ class App extends React.Component {
       .find(item => id === item.id)
 
     if (!isSaved && !isAlreadyInBookmark) {
-      this.setState(state => (
+      return this.setState(state => (
         state.subReddits[1].postsList
           .push(subReddits[selected].postsList[index])
       ))
@@ -198,8 +197,9 @@ class App extends React.Component {
   render () {
     const index = this.state.selected
     const { name, color, postsList, } = this.state.subReddits[index]
-    const { isLoading, isError, } = this.state
     const subArray = this.state.subReddits.map(sub => sub.name)
+    const { isLoading, isError, } = this.state
+    const isBookmarkList = index === 1
     return (
       <>
         <Header
@@ -210,16 +210,21 @@ class App extends React.Component {
           handleRemoveSubs={this.handleRemoveSubs}
           handleNewSub={this.handleNewSub}
         />
-        <PostsList
-          content={postsList}
-          handleBookmark={this.handleBookmark}
-          isLoading={isLoading}
-          isError={isError}
-          isBookmarkList={index === 1}
-        />
+        {isBookmarkList && <BookmarksList />}
+        {!isBookmarkList && (
+          <PostsList
+            content={postsList}
+            handleBookmark={this.handleBookmark}
+            isLoading={isLoading}
+            isError={isError}
+            isBookmarkList={index === 1}
+          />
+        )}
       </>
     )
   }
 }
+
+const BookmarksList = () => <div />
 
 export default App
