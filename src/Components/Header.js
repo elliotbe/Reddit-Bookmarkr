@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from 'react'
 import PropTypes from 'prop-types'
 
@@ -6,19 +5,12 @@ import css from './Header.module.styl'
 
 class Header extends React.Component {
   render () {
-    // console.log('Header render')
     const { subArray, name, bgColor, } = this.props
     const selectList = subArray.map(subName => (
       <option className={css.option} key={subName}>
         {subName}
       </option>
     ))
-
-    // selectList.splice(1, 0,
-    //   <option className={css.option} key='Favorites'>
-    //     favorites
-    //   </option>
-    // )
 
     return (
       <header className={css.header} style={{ backgroundColor: bgColor, }}>
@@ -36,6 +28,7 @@ class Header extends React.Component {
           </select>
           <button
             type='button'
+            title='Remove last subreddit'
             className={css.button}
             onClick={event => this.props.handleRemoveSubs(event)}
           >

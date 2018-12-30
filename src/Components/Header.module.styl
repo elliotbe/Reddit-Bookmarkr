@@ -1,22 +1,26 @@
 @require '../helpers/above-and-below'
 
+
 .header
   display: grid
   align-items: center
-  padding: 0 16px
+  padding: 16px
   min-height: 80px
   background-color: var(--mid-gray)
   color: #fff
   grid-template-columns: repeat(3, 1fr)
 
+
 .label
   display: block
 
+
 .select
-  // margin-top: 6px
   margin-right: 4px
-  width: 112px
+  min-width: 112px
+  max-width: 224px
   text-transform: capitalize
+
 
 .button
   position: relative
@@ -25,12 +29,16 @@
   font-weight: bold
   font-size: 10px
 
+
 .title
   margin: 0
   text-align: center
+  word-break: break-all
+
 
 .formInput, .input
   text-align: right
+
 
 .input
   margin-left: -4px
@@ -49,9 +57,9 @@
     color: var(--light-gray)
     font-style: italic
 
+
 +below(600px)
   .header
-    padding: 16px
     grid-template-columns: 1fr
     grid-row-gap: 8px
 

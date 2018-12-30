@@ -1,11 +1,13 @@
 @require '../helpers/above-and-below'
 
+
 .post
   display: grid
   max-width: 1170px
   border-bottom: 1px solid var(--dark-gray)
   background-color: #fff
   grid-template-columns: auto auto minmax(auto, 1170px)
+
 
 .scoreWrap
   display: flex
@@ -16,11 +18,13 @@
   background-color: var(--light-gray)
   user-select: none
 
+
 .score
   margin: 4px 0
   color: var(--dark-gray)
   font-weight: 600
   font-size: 14px
+
 
 .iconArrow
   width: 18px
@@ -42,10 +46,12 @@
   &:hover
     fill: var(--blue)
 
+
 .thumbnailCell
   align-self: center
 
 .thumbnail
+  display: block
   align-self: center
   margin: 8px
   width: 80px
@@ -57,11 +63,13 @@
   +below(400px)
     display: none
 
+
 .content
   margin: 8px
   color: var(--gray)
   font-size: 12px
   justify-self: stretch
+
 
 .postTitle
   z-index: 10
@@ -79,6 +87,7 @@
 
   > a:visited
     color: var(--mid-gray)
+
 
 .linkHost
   display: inline-block

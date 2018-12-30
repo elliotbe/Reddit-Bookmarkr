@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars, eqeqeq */
+/* eslint-disable no-unused-vars */
 import React from 'react'
 import axios from 'axios'
 
@@ -19,7 +19,7 @@ class App extends React.Component {
     })
     const index = this.state.selected
     const name = this.state.subReddits[index].name
-    const url = `https://www.reddit.com/r/${name}/top.json?t=week&limit=100`
+    const url = `https://www.reddit.com/r/${name}.json?limit=25`
 
     // don't refetch twice
     if (this.state.subReddits[index].postsList.length !== 0) {
@@ -28,7 +28,11 @@ class App extends React.Component {
 
     ;(async () => {
       try {
-        const response = await axios(url)
+        const response = await axios({
+          url: url,
+          params: { raw_json: 1 }
+        })
+
         const postsList = response.data.data.children
           .map(post => post.data)
 
@@ -37,18 +41,25 @@ class App extends React.Component {
         })
         this.setState({ isLoading: false, })
       } catch (error) {
-        this.setState({
-          isLoading: false,
-          isError: true,
-        })
+        this.setState({ isLoading: false })
+        if (!error.response) {
+          return this.setState({ isError: 'offline' })
+        }
+        if (error.response.status === 404) {
+          return this.setState({ isError: '404' })
+        }
+        this.setState({ isError: 'error' })
       }
     })()
   }
 
   getLocalStorage () {
     const subsList = JSON.parse(localStorage.getItem('subReddits'))
+    const selected = parseInt(localStorage.getItem('selected')) || 0
     if (subsList !== null) {
       this.setState({
+        selected,
+        isError: false,
         subReddits: [
           ...subsList,
         ],
@@ -66,17 +77,8 @@ class App extends React.Component {
     // Add only bookmarks to localStorage
     subsList[1].postsList = this.state.subReddits[1].postsList
 
+    localStorage.setItem('selected', this.state.selected)
     localStorage.setItem('subReddits', JSON.stringify(subsList))
-  }
-
-  assignColor () {
-    const colorArray = [
-      '#330136', '#9C031B', '#962E40', '#C9463D', '#FF5E35', '#355C7D',
-      '#6C5B7B', '#140A25', '#10272F', '#054549', '#0A597A', '#0BC7B1',
-    ]
-    const index = Math.round(Math.random() * colorArray.length)
-
-    return colorArray[index]
   }
 
   @bound
@@ -100,9 +102,19 @@ class App extends React.Component {
       return this.setState({ selected: index, })
     }
 
+    const assignColor = () => {
+      const colorArray = [
+        '#330136', '#9C031B', '#962E40', '#C9463D', '#FF5E35', '#355C7D',
+        '#6C5B7B', '#140A25', '#10272F', '#054549', '#0A597A', '#0BC7B1',
+      ]
+      const index = Math.round(Math.random() * colorArray.length)
+
+      return colorArray[index]
+    }
+
     const newSub = {
       name: newSubName,
-      color: this.assignColor(),
+      color: assignColor(),
       postsList: [],
     }
 
@@ -117,47 +129,77 @@ class App extends React.Component {
 
   @bound
   handleRemoveSubs (event) {
-    console.log(event)
-    // since we(re removeving all subs except popular and favorites
-    // we also want to swith to one of this too
-    const index = this.state.selected < 2 ? this.state.selected : 0
-    console.log(index)
+    const { subReddits, selected } = this.state
+    if (selected < 2) {
+      return alert('You are not supposed to delete this')
+    }
+    if (selected === subReddits.length - 1) {
+      this.setState({ selected: selected - 1 })
+    }
     this.setState({
-      selected: index,
-      subReddits: [
-        ...this.state.subReddits.slice(0, 2),
-      ],
+      subReddits: [ ...subReddits.slice(0, subReddits.length - 1) ]
     })
   }
 
-  componentDidMount () {
-    this.getLocalStorage()
-    this.setState({ ...appInitialState, })
-    this.fetchPostsList()
+  @bound
+  handleBookmark (id) {
+    const { selected, subReddits } = this.state
+    const index = subReddits[selected].postsList
+      .findIndex(item => id === item.id)
+
+    const isSaved = subReddits[selected].postsList[index].saved
+    const toogleSaved = subReddits[selected].postsList[index].saved === false
+
+    this.setState(state => (
+      state.subReddits[selected].postsList[index].saved = toogleSaved
+    ))
+
+    if (isSaved) {
+      const newBookmarks = subReddits[1].postsList
+        .filter(item => id !== item.id)
+
+      this.setState(state => (
+        state.subReddits[1].postsList = newBookmarks
+      ))
+    }
+
+    const isAlreadyInBookmark = subReddits[1].postsList
+      .find(item => id === item.id)
+
+    if (!isSaved && !isAlreadyInBookmark) {
+      this.setState(state => (
+        state.subReddits[1].postsList
+          .push(subReddits[selected].postsList[index])
+      ))
+    }
   }
 
-  componentWillUnmount () {
-    console.log('app unmount')
+  componentDidMount () {
+    this.setState({ ...appInitialState, })
+    ;(async () => {
+      await this.getLocalStorage()
+      if (this.state.selected === 0) {
+        this.fetchPostsList()
+      }
+    })()
   }
 
   componentDidUpdate (prevProps, prevState) {
-    // console.log('app update')
     this.setLocalStorage()
-    if (this.state.selected === 1) {
-      return
+    const selectedChanged = prevState.selected !== this.state.selected
+    if (selectedChanged && this.state.selected === 1) {
+      return this.getLocalStorage()
     }
-    if (prevState.selected !== this.state.selected) {
+    if (selectedChanged) {
       this.fetchPostsList()
     }
   }
 
   render () {
-    // console.log('app render')
     const index = this.state.selected
     const { name, color, postsList, } = this.state.subReddits[index]
     const { isLoading, isError, } = this.state
     const subArray = this.state.subReddits.map(sub => sub.name)
-    // console.log(subArray)
     return (
       <>
         <Header
@@ -170,8 +212,10 @@ class App extends React.Component {
         />
         <PostsList
           content={postsList}
+          handleBookmark={this.handleBookmark}
           isLoading={isLoading}
           isError={isError}
+          isBookmarkList={index === 1}
         />
       </>
     )

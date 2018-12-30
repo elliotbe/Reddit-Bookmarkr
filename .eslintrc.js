@@ -11,13 +11,7 @@ module.exports = {
   'parser': 'babel-eslint',
   'rules': {
     'react/prop-types': 'warn',
-    'comma-dangle': ['error', {
-      'arrays': 'always',
-      'objects': 'always',
-      'imports': 'never',
-      'exports': 'never',
-      'functions': 'ignore',
-    }],
+    'comma-dangle': ['off'],
     'max-len': ['warn', {
       'code': 80,
       'ignoreComments': true,
