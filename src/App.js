@@ -30,6 +30,8 @@ class App extends React.Component {
       try {
         const response = await axios({
           url: url,
+          // raw_json is required by redditAPI to avoid
+          // getting a response with some escaped chars
           params: { raw_json: 1 }
         })
 

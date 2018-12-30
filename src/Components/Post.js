@@ -38,13 +38,13 @@ class Post extends React.Component {
         break
     }
 
+    if (url.includes('reddit.com/r/')) {
+      return <img className={css.thumbnail} alt='thumbnail' src={imgSrc} />
+    }
+
     return (
       <a href={url}>
-        <img
-          className={css.thumbnail}
-          alt='thumbnail'
-          src={imgSrc}
-        />
+        <img className={css.thumbnail} alt='thumbnail' src={imgSrc} />
       </a>
     )
   }
