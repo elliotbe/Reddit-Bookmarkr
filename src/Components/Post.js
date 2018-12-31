@@ -90,7 +90,7 @@ class Post extends React.Component {
       color: 'white',
     }
     return (
-      <article className={css.post}>
+      <article className={`item-content ${css.post}`}>
         <div className={css.scoreWrap}>
           <IconArrow className={css.iconUpArrow} />
           <div className={css.score}>
@@ -119,7 +119,7 @@ class Post extends React.Component {
             >{this.sanitizeComments(commentsCount)}</a>
             <button
               type='button'
-              onClick={() => handleBookmark(id)}
+              onClick={() => handleBookmark(id, this)}
               style={saved === true ? cssButton : null}
             >Stars</button>
           </div>

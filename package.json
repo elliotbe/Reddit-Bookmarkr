@@ -1,12 +1,12 @@
 {
-  "name": "react-app-boilerplate",
+  "name": "reddit-bookmarkr",
   "version": "0.1.0",
-  "description": "React App Boilerplate",
-  "license": "MIT",
+  "description": "A small app allowing you to browse subbredits and bookmarks posts",
   "author": "Yoyote",
+  "license": "MIT",
+  "repository": "github:elliotbe/React-App-Boilerplate",
   "main": "src/index.js",
   "private": true,
-  "repository": "github:elliotbe/React-App-Boilerplate",
   "engines": {
     "node": ">=10.0.0",
     "yarn": ">=1.12.0"
@@ -14,11 +14,10 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "postbuild": "serve -s build",
     "test": "node scripts/test.js",
     "lint": "eslint --ignore-pattern 'build/'",
-    "deploy": "yarn build && surge build/ --domain https://your-domain.surge.sh",
-    "teardown": "surge teardown your-domain.surge.sh"
+    "deploy": "yarn build && surge build/ --domain https://reddit-bookmarkr-yoyote.surge.sh",
+    "teardown": "surge teardown reddit-bookmarkr-yoyote.surge.sh"
   },
   "dependencies": {
     "@babel/core": "^7.1.6",
@@ -70,9 +69,9 @@
     "react-app-polyfill": "^0.2.0",
     "react-dev-utils": "^7.0.0",
     "react-dom": "^16.7.0-alpha.2",
+    "react-muuri": "^0.2.0",
     "resolve": "^1.8.1",
     "sass-loader": "^7.1.0",
-    "serve": "^10.1.1",
     "style-loader": "^0.23.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",

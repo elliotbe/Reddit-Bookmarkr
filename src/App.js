@@ -3,9 +3,13 @@ import React from 'react'
 import axios from 'axios'
 
 import Header from './Components/Header'
+import Message from './Components/Message'
+import BookmarksList from './Components/BookmarksList'
 import PostsList from './Components/PostsList'
+
 import appInitialState from './appInitialState'
 import bound from './helpers/bound-decorator'
+import css from './Components/PostsList.module.styl'
 
 class App extends React.Component {
   state = {
@@ -22,16 +26,16 @@ class App extends React.Component {
     const url = `https://www.reddit.com/r/${name}.json?limit=25`
 
     // don't refetch twice
+    // TODO: fix when getting out of favorites
     if (this.state.subReddits[index].postsList.length !== 0) {
       return this.setState({ isLoading: false, })
     }
 
     ;(async () => {
       try {
+        // raw_json is required by redditAPI to avoid escaped chars in the response
         const response = await axios({
           url: url,
-          // raw_json is required by redditAPI to avoid
-          // getting a response with some escaped chars
           params: { raw_json: 1 }
         })
 
@@ -43,14 +47,10 @@ class App extends React.Component {
         })
         this.setState({ isLoading: false, })
       } catch (error) {
-        this.setState({ isLoading: false })
-        if (!error.response) {
-          return this.setState({ isError: 'offline' })
-        }
-        if (error.response.status === 404) {
-          return this.setState({ isError: '404' })
-        }
-        this.setState({ isError: 'error' })
+        this.setState({
+          isLoading: false,
+          isError: true,
+        })
       }
     })()
   }
@@ -186,6 +186,7 @@ class App extends React.Component {
   }
 
   componentDidUpdate (prevProps, prevState) {
+    // console.log('app update')
     this.setLocalStorage()
     const selectedChanged = prevState.selected !== this.state.selected
     if (selectedChanged && this.state.selected === 1) {
@@ -202,6 +203,7 @@ class App extends React.Component {
     const subArray = this.state.subReddits.map(sub => sub.name)
     const { isLoading, isError, } = this.state
     const isBookmarkList = index === 1
+    const isEmptyBookmarks = isBookmarkList && postsList.length === 0
     return (
       <>
         <Header
@@ -212,21 +214,28 @@ class App extends React.Component {
           handleRemoveSubs={this.handleRemoveSubs}
           handleNewSub={this.handleNewSub}
         />
-        {isBookmarkList && <BookmarksList />}
-        {!isBookmarkList && (
-          <PostsList
+        {isEmptyBookmarks && (
+          <section className={css.section}>
+            <Message label='emptyBookmarks' />
+          </section>
+        )}
+        {isBookmarkList && (
+          <BookmarksList
             content={postsList}
             handleBookmark={this.handleBookmark}
+          />
+        )}
+        {!isBookmarkList && (
+          <PostsList
             isLoading={isLoading}
             isError={isError}
-            isBookmarkList={index === 1}
+            content={postsList}
+            handleBookmark={this.handleBookmark}
           />
         )}
       </>
     )
   }
 }
-
-const BookmarksList = () => <div />
 
 export default App

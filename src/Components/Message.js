@@ -6,9 +6,7 @@ class Message extends React.Component {
     const { label, } = this.props
     const message = {
       loading: 'Loading…',
-      'offline': 'You seems to be offline',
-      '404': 'Are you sure this Subreddit exist ?',
-      error: 'There appears to be an error',
+      error: 'Are you sure this Subreddit exist ?',
       emptyBookmarks: 'Try starring some posts first',
       empty: 'There seems to be nothing here',
     }
@@ -27,8 +25,6 @@ class Message extends React.Component {
   static propTypes = {
     label: PropTypes.oneOf([
       'loading',
-      'offline',
-      '404',
       'error',
       'emptyBookmarks',
       'empty',
