@@ -199,27 +199,26 @@ class App extends React.Component {
     })
   }
 
-  @bound handleBookmark (id) {
+  @bound handleBookmark (id, isBookmark) {
     const { selected, subreddits } = this.state
     const postIndex = subreddits[selected].postsList
       .findIndex(item => id === item.id)
-    const isSaved = subreddits[selected].postsList[postIndex].saved
-    const toogleSaved = isSaved === false
     const isAlreadyBookmarked = subreddits[1].postsList
       .find(item => id === item.id)
 
+    // We need to change state to set local storage
     this.setState(state => (
-      state.subreddits[selected].postsList[postIndex].saved = toogleSaved
+      state.subreddits[selected].postsList[postIndex].saved = true
     ))
 
-    if (isSaved) {
+    if (isBookmark) {
       this.setState(state => {
         state.subreddits[1].postsList = subreddits[1].postsList
           .filter(item => id !== item.id)
       })
     }
 
-    if (!isSaved && !isAlreadyBookmarked) {
+    if (!isAlreadyBookmarked) {
       this.setState(state => {
         state.subreddits[1].postsList
           .unshift(subreddits[selected].postsList[postIndex])

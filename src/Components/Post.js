@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -63,30 +64,25 @@ class Post extends React.Component {
 
   sanitizeHostName (url) {
     let parsedURL = url.replace('https://', '')
+    if (parsedURL.startsWith('www.reddit.com/r/')) {
+      return null
+    }
     if (parsedURL.length > 20) {
       parsedURL = parsedURL.substring(0, 20) + '…'
     }
-    if (parsedURL.startsWith('www.reddit.com/r/')) return null
     return (
-      <a
-        className={css.linkHost}
-        href={url}
-        target='_blank'
-      >{parsedURL}</a>
+      <a className={css.linkHost} href={url} >
+        <span>{parsedURL}</span>
+        <IconGoTo className={css.iconGoTo} />
+      </a>
     )
   }
 
   render () {
-    const { postContent, handleBookmark } = this.props
-    const { score, thumbnail, url, title,
-      author, permalink, id } = postContent
+    const { postContent, handleBookmark, isBookmark } = this.props
+    const { score, thumbnail, url, title, author, permalink, id } = postContent
     const commentsCount = postContent.num_comments
     const createdUTC = postContent.created_utc
-
-    // const cssButton = {
-    //   backgroundColor: 'var(--dark-gray)',
-    //   color: 'white',
-    // }
     return (
       <article className={`${css.post}`}>
         <div className={css.scoreWrap}>
@@ -101,25 +97,30 @@ class Post extends React.Component {
         </div>
         <div className={css.content}>
           <h2 className={css.postTitle}>
-            <a href={'https://www.reddit.com' + permalink}
-              target='_blank'
-            >{title}</a>
+            <a href={'https://www.reddit.com' + permalink}>{title}</a>
           </h2>
           {this.sanitizeHostName(url)}
           <div>
             Posted by&nbsp;
-            <a href={'https://www.reddit.com/user/' + author}>u/{author}</a>
-            <span>{' ' + this.sanitizeCreatedAt(createdUTC)}</span>
+            <a
+              className={css.author}
+              href={'https://www.reddit.com/user/' + author}
+            >u/{author}</a>
+            <span> • {this.sanitizeCreatedAt(createdUTC)}</span>
           </div>
-          <div>
-            <a href={'https://www.reddit.com' + permalink}
-              target='_blank'
-            >{this.sanitizeComments(commentsCount)}</a>
+          <div className={css.thirdRow}>
+            <a className={css.comments} href={'https://www.reddit.com' + permalink}>
+              <IconComments className={css.iconComments} />
+              {this.sanitizeComments(commentsCount)}
+            </a>
             <button
               type='button'
-              onClick={() => handleBookmark(id)}
-              // style={cssButton}
-            >Stars</button>
+              className={isBookmark ? `${css.save} ${css.isBookmark}` : css.save}
+              onClick={() => handleBookmark(id, isBookmark)}
+            >
+              <IconStars className={css.iconStars} />
+              <span>{isBookmark ? 'unsave' : 'save'}</span>
+            </button>
           </div>
         </div>
       </article>
@@ -129,12 +130,35 @@ class Post extends React.Component {
   static propTypes = {
     postContent: PropTypes.object.isRequired,
     handleBookmark: PropTypes.func.isRequired,
+    isBookmark: PropTypes.bool,
   }
 }
 
 const IconArrow = (props) => (
   <svg {...props} version='1.1' viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'>
     <polygon points='0,336.966 229.784,336.966 229.784,488.925 512,256 229.784,23.076 229.784,175.039 0,175.039 ' />
+  </svg>
+)
+
+const IconGoTo = (props) => (
+  <svg {...props} viewBox='0 0 465 400' xmlns='http://www.w3.org/2000/svg'>
+    <path d='m345.375 3.410156c-2.863281-2.847656-7.160156-3.695312-10.890625-2.144531s-6.164063 5.191406-6.164063 9.234375v53.359375c-54.003906 2.152344-81.054687 24.535156-85.191406 28.261719-27.25 22.363281-45.855468 53.527344-52.613281 88.121094-3.378906 16.714843-3.984375 33.871093-1.785156 50.78125l.007812.058593c.019531.148438.042969.300781.066407.449219l2.125 12.214844c.714843 4.113281 3.914062 7.351562 8.019531 8.117187 4.109375.765625 8.257812-1.105469 10.40625-4.683593l6.367187-10.613282c19.5625-32.53125 43.941406-54.09375 72.46875-64.089844 12.867188-4.546874 26.5-6.546874 40.128906-5.882812v55.265625c0 4.046875 2.441407 7.699219 6.183594 9.242187 3.746094 1.546876 8.050782.679688 10.90625-2.191406l105.675782-106.210937c3.894531-3.914063 3.878906-10.246094-.035157-14.140625zm0 0' />
+    <path d='m417.351562 294.953125c-5.519531 0-10 4.476563-10 10v42.265625c-.015624 16.558594-13.4375 29.980469-30 30h-327.351562c-16.5625-.019531-29.980469-13.441406-30-30v-238.246094c.019531-16.5625 13.4375-29.980468 30-30h69.160156c5.523438 0 10-4.476562 10-10 0-5.523437-4.476562-10-10-10h-69.160156c-27.601562.03125-49.96875 22.398438-50 50v238.246094c.03125 27.597656 22.398438 49.964844 50 50h327.351562c27.601563-.035156 49.96875-22.402344 50-50v-42.265625c0-5.523437-4.476562-10-10-10zm0 0' />
+  </svg>
+)
+
+const IconComments = (props) => (
+  <svg {...props} viewBox='0 0 442 344' xmlns='http://www.w3.org/2000/svg'>
+    <path d='m125.433594 195.023438v-129.324219h-105.433594c-11.039062.011719-19.9882812 8.960937-20 20v181c.0117188 11.042969 8.960938 19.988281 20 20h21.8125c5.519531 0 10 4.476562 10 10v46.753906l85.488281-55.152344c1.613281-1.042969 3.496094-1.601562 5.421875-1.601562h106.058594c11.042969-.011719 19.988281-8.957031 20-20v-31.675781h-103.347656c-22.082032-.023438-39.976563-17.917969-40-40zm0 0' />
+    <path d='m422 0h-256.566406c-11.042969.0117188-19.988282 8.960938-20 20v175.023438c.011718 11.039062 8.957031 19.988281 20 20h141.222656c2.304688 0 4.539062.796874 6.324219 2.253906l79.289062 64.707031v-56.960937c0-5.523438 4.480469-10 10-10h19.730469c11.039062-.011719 19.988281-8.960938 20-20v-175.023438c-.011719-11.039062-8.960938-19.9882812-20-20zm0 0' />
+  </svg>
+)
+
+const IconStars = (props) => (
+  <svg {...props} viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'>
+    <g>
+      <path d='M121.215,44.212l-34.899-3.3c-2.2-0.2-4.101-1.6-5-3.7l-12.5-30.3c-2-5-9.101-5-11.101,0l-12.4,30.3c-0.8,2.1-2.8,3.5-5,3.7l-34.9,3.3c-5.2,0.5-7.3,7-3.4,10.5l26.3,23.1c1.7,1.5,2.4,3.7,1.9,5.9l-7.9,32.399c-1.2,5.101,4.3,9.3,8.9,6.601l29.1-17.101c1.9-1.1,4.2-1.1,6.1,0l29.101,17.101c4.6,2.699,10.1-1.4,8.899-6.601l-7.8-32.399c-0.5-2.2,0.2-4.4,1.9-5.9l26.3-23.1C128.615,51.212,126.415,44.712,121.215,44.212z' />
+    </g>
   </svg>
 )
 

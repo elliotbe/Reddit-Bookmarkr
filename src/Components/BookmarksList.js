@@ -41,8 +41,8 @@ class BookmarksList extends React.Component {
     this.grid.getMethod('destroy')
   }
 
-  @bound hookHandleBookmark (id) {
-    this.props.handleBookmark(id)
+  @bound hookHandleBookmark (id, isBookmark) {
+    this.props.handleBookmark(id, isBookmark)
     const gridItemArray = this.grid.getMethod('getItems')
     const index = gridItemArray
       .findIndex(elem => elem._element.dataset.id === id)
@@ -65,6 +65,7 @@ class BookmarksList extends React.Component {
             <Post
               postContent={post}
               handleBookmark={this.hookHandleBookmark}
+              isBookmark
             />
           </li>
         ))}
