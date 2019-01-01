@@ -31,6 +31,7 @@ class BookmarksList extends React.Component {
     }
 
     this.grid.getMethod('on', 'move', () => {
+      this.grid.getMethod('synchronize')
       const bookmarkOrder = this.grid.getMethod('getItems')
         .map(elem => elem._element.dataset.id)
       localStorage.setItem('boorkmarkOrder', bookmarkOrder)
