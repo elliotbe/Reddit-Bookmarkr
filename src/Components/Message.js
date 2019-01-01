@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import css from './Message.module.styl'
+
 class Message extends React.Component {
   render () {
     const { label, } = this.props
@@ -10,15 +12,8 @@ class Message extends React.Component {
       emptyBookmarks: 'Try starring some posts first',
       empty: 'There seems to be nothing here',
     }
-
-    const style = {
-      fontSize: '32px',
-      color: 'var(--light-gray)',
-      textAlign: 'center',
-    }
-
     return (
-      <strong style={style}>{message[label]}</strong>
+      <strong className={css.message}>{message[label]}</strong>
     )
   }
 

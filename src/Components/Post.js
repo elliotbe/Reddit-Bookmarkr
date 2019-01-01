@@ -1,4 +1,3 @@
-/* eslint no-unused-vars: 1 */
 import React from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -37,11 +36,11 @@ class Post extends React.Component {
       default:
         break
     }
-
+    // We don't want a link if it's on reddit since
+    // we already have two others in title and comments
     if (url.includes('reddit.com/r/')) {
       return <img className={css.thumbnail} alt='thumbnail' src={imgSrc} />
     }
-
     return (
       <a href={url}>
         <img className={css.thumbnail} alt='thumbnail' src={imgSrc} />
@@ -63,12 +62,11 @@ class Post extends React.Component {
   }
 
   sanitizeHostName (url) {
-    const parsedURL = url.replace('https://', '').substring(0, 18) + '…'
-
-    if (parsedURL.startsWith('www.reddit.com/r/')) {
-      return null
+    let parsedURL = url.replace('https://', '')
+    if (parsedURL.length > 20) {
+      parsedURL = parsedURL.substring(0, 20) + '…'
     }
-
+    if (parsedURL.startsWith('www.reddit.com/r/')) return null
     return (
       <a
         className={css.linkHost}
@@ -81,16 +79,16 @@ class Post extends React.Component {
   render () {
     const { postContent, handleBookmark } = this.props
     const { score, thumbnail, url, title,
-      author, permalink, id, saved } = postContent
+      author, permalink, id } = postContent
     const commentsCount = postContent.num_comments
     const createdUTC = postContent.created_utc
 
-    const cssButton = {
-      backgroundColor: 'var(--dark-gray)',
-      color: 'white',
-    }
+    // const cssButton = {
+    //   backgroundColor: 'var(--dark-gray)',
+    //   color: 'white',
+    // }
     return (
-      <article className={`item-content ${css.post}`}>
+      <article className={`${css.post}`}>
         <div className={css.scoreWrap}>
           <IconArrow className={css.iconUpArrow} />
           <div className={css.score}>
@@ -119,8 +117,8 @@ class Post extends React.Component {
             >{this.sanitizeComments(commentsCount)}</a>
             <button
               type='button'
-              onClick={() => handleBookmark(id, this)}
-              style={saved === true ? cssButton : null}
+              onClick={() => handleBookmark(id)}
+              // style={cssButton}
             >Stars</button>
           </div>
         </div>

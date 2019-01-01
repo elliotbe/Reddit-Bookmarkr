@@ -3,9 +3,7 @@ import PropTypes from 'prop-types'
 import MuuriGrid from 'react-muuri'
 
 import Post from './Post'
-import css from './PostsList.module.styl'
 import bound from '../helpers/bound-decorator'
-import './css-muuri.styl'
 
 class BookmarksList extends React.Component {
   componentDidMount () {
@@ -17,12 +15,13 @@ class BookmarksList extends React.Component {
         dragAxis: 'y',
       }
     })
-    if (localStorage.getItem('bookmarkItems') !== null) {
-      const sortOrder = localStorage.getItem('bookmarkItems').split(',')
+
+    if (localStorage.getItem('boorkmarkOrder') !== null) {
+      const sortOrder = localStorage.getItem('boorkmarkOrder').split(',')
       let itemArray = []
       sortOrder.forEach(id => {
-        const grid = this.grid.getMethod('getItems')
-        const item = grid.find(item => id === item._element.dataset.id)
+        const ItemsArray = this.grid.getMethod('getItems')
+        const item = ItemsArray.find(item => id === item._element.dataset.id)
         if (item !== undefined) {
           this.grid.getMethod('remove', item, { removeElements: true })
           itemArray.push(item._element)
@@ -30,14 +29,11 @@ class BookmarksList extends React.Component {
       })
       this.grid.getMethod('add', itemArray, { layout: 'instant' })
     }
-  }
 
-  componentDidUpdate () {
-    this.grid.getMethod('on', 'move', (data) => {
-      this.grid.getMethod('synchronize')
-      const sortOrder = this.grid.getMethod('getItems')
+    this.grid.getMethod('on', 'move', () => {
+      const bookmarkOrder = this.grid.getMethod('getItems')
         .map(elem => elem._element.dataset.id)
-      localStorage.setItem('bookmarkItems', sortOrder)
+      localStorage.setItem('boorkmarkOrder', bookmarkOrder)
     })
   }
 
@@ -45,8 +41,7 @@ class BookmarksList extends React.Component {
     this.grid.getMethod('destroy')
   }
 
-  @bound
-  hookHandleBookmark (id) {
+  @bound hookHandleBookmark (id) {
     this.props.handleBookmark(id)
     const gridItemArray = this.grid.getMethod('getItems')
     const index = gridItemArray
@@ -56,20 +51,24 @@ class BookmarksList extends React.Component {
   }
 
   render () {
-    const { content } = this.props
     return (
-      <section className={css.section}>
-        <ul ref={gridElement => { this.gridElement = gridElement }} className={`grid ${css.list}`}>
-          {content.map(post => (
-            <li data-id={post.id} key={post.id} className={`item ${css.listItem}`}>
-              <Post
-                postContent={post}
-                handleBookmark={this.hookHandleBookmark}
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
+      <ul
+        className='list'
+        ref={gridElement => { this.gridElement = gridElement }}
+      >
+        {this.props.content.map(post => (
+          <li
+            data-id={post.id}
+            key={post.id}
+            className='list-item'
+          >
+            <Post
+              postContent={post}
+              handleBookmark={this.hookHandleBookmark}
+            />
+          </li>
+        ))}
+      </ul>
     )
   }
 

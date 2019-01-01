@@ -10,14 +10,63 @@ body
   margin: 0
   padding: 0
   font-family: 'Segoe UI', sans-serif
-  line-height: 1.5
+  min-height: 100vh
 
 
 :root
-  // Colors variable
   --dark-gray: #373c3f
   --mid-gray: #878a8c
   --light-gray: #d7d8d9
   --lighter-gray: #f8f8f8
   --red: #c73349
   --blue: #5a75cc
+
+
+body > div[id='root']
+  min-height: 100vh
+  display: grid
+  grid-template-rows: auto 1fr
+
+
+.section
+  display: flex
+  flex-direction: column
+  align-items: center
+  padding: 24px 16px
+  background-color: var(--dark-gray)
+
+
+.list
+  margin: 0
+  padding: 0
+  max-width: 1170px
+
+
+.list-item
+  list-style-type: none
+
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * * Muuri settings used in Bookmarks
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+.muuri
+  position: relative
+  width: 100%
+
+
+.muuri-item
+  position: absolute
+
+
+.muuri-item-dragging
+  z-index: 3
+
+
+.muuri-item-releasing
+  z-index: 2
+
+
+.muuri-item-hidden
+  z-index: 0

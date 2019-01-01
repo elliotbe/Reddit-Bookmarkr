@@ -5,10 +5,10 @@ import css from './Header.module.styl'
 
 class Header extends React.Component {
   render () {
-    const { subArray, name, bgColor, } = this.props
-    const selectList = subArray.map(subName => (
-      <option className={css.option} key={subName}>
-        {subName}
+    const { subsList, name, bgColor, } = this.props
+    const selectionList = subsList.map(sub => (
+      <option className={css.option} key={sub}>
+        {sub}
       </option>
     ))
 
@@ -24,7 +24,7 @@ class Header extends React.Component {
             id='select'
             onChange={event => this.props.handleSelect(event)}
           >
-            {selectList}
+            {selectionList}
           </select>
           <button
             type='button'
@@ -58,7 +58,7 @@ class Header extends React.Component {
   }
 
   static propTypes = {
-    subArray: PropTypes.array.isRequired,
+    subsList: PropTypes.array.isRequired,
     name: PropTypes.string.isRequired,
     bgColor: PropTypes.string.isRequired,
     handleSelect: PropTypes.func.isRequired,

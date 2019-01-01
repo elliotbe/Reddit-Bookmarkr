@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from 'react'
 import axios from 'axios'
 
@@ -6,14 +5,59 @@ import Header from './Components/Header'
 import Message from './Components/Message'
 import BookmarksList from './Components/BookmarksList'
 import PostsList from './Components/PostsList'
-
-import appInitialState from './appInitialState'
 import bound from './helpers/bound-decorator'
-import css from './Components/PostsList.module.styl'
+import './style.styl'
 
 class App extends React.Component {
   state = {
-    ...appInitialState,
+    subreddits: [
+      {
+        name: 'popular',
+        color: '#232d12',
+        postsList: [],
+      },
+      {
+        name: 'favorites',
+        color: '#da3287',
+        postsList: [],
+      },
+      {
+        name: 'askreddit',
+        color: '#773000',
+        postsList: [],
+      },
+      {
+        name: 'reactjs',
+        color: '#2a2a43',
+        postsList: [],
+      },
+      {
+        name: 'pathofexile',
+        color: '#511251',
+        postsList: [],
+      },
+    ],
+    selected: 0,
+    isLoading: false,
+    isError: false,
+  }
+
+  componentDidMount () {
+    this.getFromLocalStorage('all')
+    // setTimout is used to avoid fetching subreddit[0]
+    // every time the component mount
+    setTimeout(() => { this.state.selected === 0 && this.fetchPostsList() }, 0)
+  }
+
+  componentDidUpdate (prevProps, prevState) {
+    const changedSub = prevState.selected !== this.state.selected
+    if (changedSub && this.state.selected === 1) {
+      this.getFromLocalStorage('bookmarks')
+    }
+    if (changedSub && this.state.selected !== 1) {
+      this.fetchPostsList()
+    }
+    this.setLocalStorage()
   }
 
   fetchPostsList () {
@@ -21,97 +65,110 @@ class App extends React.Component {
       isLoading: true,
       isError: false,
     })
-    const index = this.state.selected
-    const name = this.state.subReddits[index].name
-    const url = `https://www.reddit.com/r/${name}.json?limit=25`
 
-    // don't refetch twice
-    // TODO: fix when getting out of favorites
-    if (this.state.subReddits[index].postsList.length !== 0) {
-      return this.setState({ isLoading: false, })
+    const { selected, subreddits } = this.state
+    const index = selected
+    const name = subreddits[index].name
+
+    // don't refetch twice if data are laready in state
+    if (this.state.subreddits[index].postsList.length !== 0) {
+      this.setState({ isLoading: false, })
+    } else {
+      ;(async () => {
+        try {
+          // raw_json is required by redditAPI
+          // to avoid escaped chars in the response
+          const response = await axios({
+            url: `https://www.reddit.com/r/${name}.json?limit=25`,
+            params: { raw_json: 1 }
+          })
+          const posts = response.data.data.children.map(post => post.data)
+          this.setState(state => { state.subreddits[index].postsList = posts })
+          this.setState({ isLoading: false, })
+        } catch (error) {
+          this.setState({ isLoading: false, isError: true, })
+        }
+      })()
     }
-
-    ;(async () => {
-      try {
-        // raw_json is required by redditAPI to avoid escaped chars in the response
-        const response = await axios({
-          url: url,
-          params: { raw_json: 1 }
-        })
-
-        const postsList = response.data.data.children
-          .map(post => post.data)
-
-        this.setState(state => {
-          state.subReddits[index].postsList = postsList
-        })
-        this.setState({ isLoading: false, })
-      } catch (error) {
-        this.setState({
-          isLoading: false,
-          isError: true,
-        })
-      }
-    })()
   }
 
-  getLocalStorage () {
-    const subsList = JSON.parse(localStorage.getItem('subReddits'))
+  getFromLocalStorage (key) {
+    this.setState({ isError: false })
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarks'))
     const selected = parseInt(localStorage.getItem('selected')) || 0
-    if (subsList !== null) {
-      this.setState({
-        selected,
-        isError: false,
-        subReddits: [
-          ...subsList,
-        ],
-      })
+    const subreddits = JSON.parse(localStorage.getItem('subreddits'))
+    if (key === 'all') {
+      this.setState({ selected: selected })
+      subreddits !== null && this.setState({ subreddits: [ ...subreddits ] })
     }
+    bookmarks !== null && this.setState(state => {
+      state.subreddits[1].postsList = bookmarks
+    })
   }
 
   setLocalStorage () {
-    const subsList = this.state.subReddits.map(sub => ({
+    const { subreddits, selected } = this.state
+    const subList = subreddits.map(sub => ({
       name: sub.name,
       color: sub.color,
       postsList: [],
     }))
-
-    // Add only bookmarks to localStorage
-    subsList[1].postsList = this.state.subReddits[1].postsList
-
-    localStorage.setItem('selected', this.state.selected)
-    localStorage.setItem('subReddits', JSON.stringify(subsList))
+    localStorage.setItem('selected', selected)
+    localStorage.setItem('subreddits', JSON.stringify(subList))
+    localStorage.setItem('bookmarks', JSON.stringify(subreddits[1].postsList))
   }
 
-  @bound
-  handleSelect (event) {
-    const index = this.state.subReddits
+  displayContent () {
+    const { isError, isLoading, selected, subreddits } = this.state
+    const { postsList } = subreddits[selected]
+    if (isLoading) return <Message label='loading' />
+    if (isError) return <Message label='error' />
+    if (selected === 1 && postsList.length === 0) {
+      return <Message label='emptyBookmarks' />
+    }
+    if (selected === 1) {
+      return (
+        <BookmarksList
+          content={postsList}
+          handleBookmark={this.handleBookmark}
+        />
+      )
+    }
+    if (postsList.length === 0) return <Message label='empty' />
+    if (selected !== 1) {
+      return (
+        <PostsList
+          content={postsList}
+          handleBookmark={this.handleBookmark}
+        />
+      )
+    }
+  }
+
+  @bound handleSelect (event) {
+    const index = this.state.subreddits
       .findIndex(elem => elem.name === event.target.value)
-    this.setState({
-      selected: index,
-    })
+    this.setState({ selected: index })
   }
 
-  @bound
-  handleNewSub (event) {
-    event.preventDefault()
+  @bound handleNewSub (event) {
     const newSubName = event.target.input.value
-    event.target.input.value = ''
-    const index = this.state.subReddits
+    const index = this.state.subreddits
       .findIndex(sub => sub.name === newSubName)
 
+    event.preventDefault()
+    event.target.input.value = ''
+
     if (index !== -1) {
-      return this.setState({ selected: index, })
+      return this.setState({ selected: index })
     }
 
-    const assignColor = () => {
+    function assignColor () {
       const colorArray = [
         '#330136', '#9C031B', '#962E40', '#C9463D', '#FF5E35', '#355C7D',
         '#6C5B7B', '#140A25', '#10272F', '#054549', '#0A597A', '#0BC7B1',
       ]
-      const index = Math.round(Math.random() * colorArray.length)
-
-      return colorArray[index]
+      return colorArray[Math.round(Math.random() * (colorArray.length - 1))]
     }
 
     const newSub = {
@@ -121,118 +178,73 @@ class App extends React.Component {
     }
 
     this.setState({
-      selected: this.state.subReddits.length,
-      subReddits: [
-        ...this.state.subReddits,
+      selected: this.state.subreddits.length,
+      subreddits: [
+        ...this.state.subreddits,
         newSub,
       ],
     })
   }
 
-  @bound
-  handleRemoveSubs (event) {
-    const { subReddits, selected } = this.state
-    if (subReddits.length < 3) {
+  @bound handleRemoveSubs (event) {
+    const { subreddits, selected } = this.state
+    if (subreddits.length < 3) {
       return alert('You are not supposed to delete this')
     }
-    if (selected === subReddits.length - 1) {
+    if (selected === subreddits.length - 1) {
       this.setState({ selected: selected - 1 })
     }
     this.setState({
-      subReddits: [ ...subReddits.slice(0, subReddits.length - 1) ]
+      subreddits: [ ...subreddits.slice(0, subreddits.length - 1) ]
     })
   }
 
-  @bound
-  handleBookmark (id) {
-    const { selected, subReddits } = this.state
-    const index = subReddits[selected].postsList
+  @bound handleBookmark (id) {
+    const { selected, subreddits } = this.state
+    const postIndex = subreddits[selected].postsList
       .findIndex(item => id === item.id)
-    const isSaved = subReddits[selected].postsList[index].saved
-    const toogleSaved = subReddits[selected].postsList[index].saved === false
+    const isSaved = subreddits[selected].postsList[postIndex].saved
+    const toogleSaved = isSaved === false
+    const isAlreadyBookmarked = subreddits[1].postsList
+      .find(item => id === item.id)
 
     this.setState(state => (
-      state.subReddits[selected].postsList[index].saved = toogleSaved
+      state.subreddits[selected].postsList[postIndex].saved = toogleSaved
     ))
 
     if (isSaved) {
-      const newBookmarks = subReddits[1].postsList
-        .filter(item => id !== item.id)
-
-      return this.setState(state => (
-        state.subReddits[1].postsList = newBookmarks
-      ))
+      this.setState(state => {
+        state.subreddits[1].postsList = subreddits[1].postsList
+          .filter(item => id !== item.id)
+      })
     }
 
-    const isAlreadyInBookmark = subReddits[1].postsList
-      .find(item => id === item.id)
-
-    if (!isSaved && !isAlreadyInBookmark) {
-      return this.setState(state => (
-        state.subReddits[1].postsList
-          .push(subReddits[selected].postsList[index])
-      ))
-    }
-  }
-
-  componentDidMount () {
-    this.setState({ ...appInitialState, })
-    ;(async () => {
-      await this.getLocalStorage()
-      if (this.state.selected === 0) {
-        this.fetchPostsList()
-      }
-    })()
-  }
-
-  componentDidUpdate (prevProps, prevState) {
-    // console.log('app update')
-    this.setLocalStorage()
-    const selectedChanged = prevState.selected !== this.state.selected
-    if (selectedChanged && this.state.selected === 1) {
-      return this.getLocalStorage()
-    }
-    if (selectedChanged) {
-      this.fetchPostsList()
+    if (!isSaved && !isAlreadyBookmarked) {
+      this.setState(state => {
+        state.subreddits[1].postsList
+          .unshift(subreddits[selected].postsList[postIndex])
+      })
     }
   }
 
   render () {
-    const index = this.state.selected
-    const { name, color, postsList, } = this.state.subReddits[index]
-    const subArray = this.state.subReddits.map(sub => sub.name)
-    const { isLoading, isError, } = this.state
-    const isBookmarkList = index === 1
-    const isEmptyBookmarks = isBookmarkList && postsList.length === 0
+    const { subreddits, selected, } = this.state
+    const { name, color, } = subreddits[selected]
+    const subsList = this.state.subreddits.map(sub => sub.name)
+
     return (
       <>
         <Header
-          subArray={subArray}
+          subsList={subsList}
           name={name}
           bgColor={color}
           handleSelect={this.handleSelect}
           handleRemoveSubs={this.handleRemoveSubs}
           handleNewSub={this.handleNewSub}
         />
-        {isEmptyBookmarks && (
-          <section className={css.section}>
-            <Message label='emptyBookmarks' />
-          </section>
-        )}
-        {isBookmarkList && (
-          <BookmarksList
-            content={postsList}
-            handleBookmark={this.handleBookmark}
-          />
-        )}
-        {!isBookmarkList && (
-          <PostsList
-            isLoading={isLoading}
-            isError={isError}
-            content={postsList}
-            handleBookmark={this.handleBookmark}
-          />
-        )}
+        <section className={'section'}>
+          {this.displayContent()}
+        </section>
       </>
     )
   }
