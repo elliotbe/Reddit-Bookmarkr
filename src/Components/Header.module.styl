@@ -23,12 +23,18 @@
 
 
 .button
+  all: unset
+  cursor: pointer
   position: relative
-  top: -1px
-  padding: 2px
-  font-weight: bold
-  font-size: 10px
+  top: 2px
+  fill: #fff
+  transition: transform .3s ease
+  &:hover
+    transform: scale(1.1)
 
+  .iconTrash
+    width: 14px
+    height: 14px
 
 .title
   margin: 0

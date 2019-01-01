@@ -13,7 +13,7 @@ class App extends React.Component {
     subreddits: [
       {
         name: 'popular',
-        color: '#232d12',
+        color: '#00468c',
         postsList: [],
       },
       {
