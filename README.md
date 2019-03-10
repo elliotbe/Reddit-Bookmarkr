@@ -1,7 +1,11 @@
 # Reddit Bookmarkr
 
-A small app using [React](https://reactjs.org/) and [Muuri](https://haltu.github.io/muuri/) which let you browse subreddits and bookmark posts
+* Add or remove subreddits
+* Save your favorite post
+* Drag and drop bookmarks to reorder them
+* Persistence via local storage
 
-![demo](./demo.png)
+![demo](./demo.jpg)
 
+Made with [React](https://reactjs.org/) and [Muuri](https://haltu.github.io/muuri/)  
 Deployed at [Reddit Bookmarkr](https://reddit-bookmarkr-yoyote.surge.sh/)

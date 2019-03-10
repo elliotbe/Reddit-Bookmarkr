@@ -46,7 +46,9 @@ class App extends React.Component {
     this.getFromLocalStorage('all')
     // setTimout is used to avoid fetching subreddit[0]
     // every time the component mount
-    setTimeout(() => { this.state.selected === 0 && this.fetchPostsList() }, 0)
+    setTimeout(() => {
+      this.state.selected === 0 && this.fetchPostsList()
+    }, 0)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -70,23 +72,24 @@ class App extends React.Component {
     const index = selected
     const name = subreddits[index].name
 
-    // don't refetch twice if data are laready in state
+    // don't refetch twice if data are already in state
     if (this.state.subreddits[index].postsList.length !== 0) {
-      this.setState({ isLoading: false, })
+      this.setState({ isLoading: false })
     } else {
       ;(async () => {
         try {
-          // raw_json is required by redditAPI
-          // to avoid escaped chars in the response
+          // raw_json is required by redditAPI to avoid escaped chars in the response
           const response = await axios({
             url: `https://www.reddit.com/r/${name}.json?limit=25`,
-            params: { raw_json: 1 }
+            params: { raw_json: 1 },
           })
           const posts = response.data.data.children.map(post => post.data)
-          this.setState(state => { state.subreddits[index].postsList = posts })
-          this.setState({ isLoading: false, })
+          this.setState(state => {
+            state.subreddits[index].postsList = posts
+          })
+          this.setState({ isLoading: false })
         } catch (error) {
-          this.setState({ isLoading: false, isError: true, })
+          this.setState({ isLoading: false, isError: true })
         }
       })()
     }
@@ -99,11 +102,12 @@ class App extends React.Component {
     const subreddits = JSON.parse(localStorage.getItem('subreddits'))
     if (key === 'all') {
       this.setState({ selected: selected })
-      subreddits !== null && this.setState({ subreddits: [ ...subreddits ] })
+      subreddits !== null && this.setState({ subreddits: [...subreddits] })
     }
-    bookmarks !== null && this.setState(state => {
-      state.subreddits[1].postsList = bookmarks
-    })
+    bookmarks !== null &&
+      this.setState(state => {
+        state.subreddits[1].postsList = bookmarks
+      })
   }
 
   setLocalStorage () {
@@ -137,24 +141,23 @@ class App extends React.Component {
     if (postsList.length === 0) return <Message label='empty' />
     if (selected !== 1) {
       return (
-        <PostsList
-          content={postsList}
-          handleBookmark={this.handleBookmark}
-        />
+        <PostsList content={postsList} handleBookmark={this.handleBookmark} />
       )
     }
   }
 
   @bound handleSelect (event) {
-    const index = this.state.subreddits
-      .findIndex(elem => elem.name === event.target.value)
+    const index = this.state.subreddits.findIndex(
+      elem => elem.name === event.target.value
+    )
     this.setState({ selected: index })
   }
 
   @bound handleNewSub (event) {
     const newSubName = event.target.input.value
-    const index = this.state.subreddits
-      .findIndex(sub => sub.name === newSubName)
+    const index = this.state.subreddits.findIndex(
+      sub => sub.name === newSubName
+    )
 
     event.preventDefault()
     event.target.input.value = ''
@@ -165,8 +168,18 @@ class App extends React.Component {
 
     function assignColor () {
       const colorArray = [
-        '#330136', '#9C031B', '#962E40', '#C9463D', '#FF5E35', '#355C7D',
-        '#6C5B7B', '#140A25', '#10272F', '#054549', '#0A597A', '#0BC7B1',
+        '#330136',
+        '#9C031B',
+        '#962E40',
+        '#C9463D',
+        '#FF5E35',
+        '#355C7D',
+        '#6C5B7B',
+        '#140A25',
+        '#10272F',
+        '#054549',
+        '#0A597A',
+        '#0BC7B1',
       ]
       return colorArray[Math.round(Math.random() * (colorArray.length - 1))]
     }
@@ -179,10 +192,7 @@ class App extends React.Component {
 
     this.setState({
       selected: this.state.subreddits.length,
-      subreddits: [
-        ...this.state.subreddits,
-        newSub,
-      ],
+      subreddits: [...this.state.subreddits, newSub],
     })
   }
 
@@ -195,40 +205,44 @@ class App extends React.Component {
       this.setState({ selected: selected - 1 })
     }
     this.setState({
-      subreddits: [ ...subreddits.slice(0, subreddits.length - 1) ]
+      subreddits: [...subreddits.slice(0, subreddits.length - 1)],
     })
   }
 
   @bound handleBookmark (id, isBookmark) {
     const { selected, subreddits } = this.state
-    const postIndex = subreddits[selected].postsList
-      .findIndex(item => id === item.id)
-    const isAlreadyBookmarked = subreddits[1].postsList
-      .find(item => id === item.id)
+    const postIndex = subreddits[selected].postsList.findIndex(
+      item => id === item.id
+    )
+    const isAlreadyBookmarked = subreddits[1].postsList.find(
+      item => id === item.id
+    )
 
     // We need to change state to set local storage
-    this.setState(state => (
-      state.subreddits[selected].postsList[postIndex].saved = true
-    ))
+    this.setState(
+      state => (state.subreddits[selected].postsList[postIndex].saved = true)
+    )
 
     if (isBookmark) {
       this.setState(state => {
-        state.subreddits[1].postsList = subreddits[1].postsList
-          .filter(item => id !== item.id)
+        state.subreddits[1].postsList = subreddits[1].postsList.filter(
+          item => id !== item.id
+        )
       })
     }
 
     if (!isAlreadyBookmarked) {
       this.setState(state => {
-        state.subreddits[1].postsList
-          .unshift(subreddits[selected].postsList[postIndex])
+        state.subreddits[1].postsList.unshift(
+          subreddits[selected].postsList[postIndex]
+        )
       })
     }
   }
 
   render () {
-    const { subreddits, selected, } = this.state
-    const { name, color, } = subreddits[selected]
+    const { subreddits, selected } = this.state
+    const { name, color } = subreddits[selected]
     const subsList = this.state.subreddits.map(sub => sub.name)
 
     return (
@@ -241,9 +255,7 @@ class App extends React.Component {
           handleRemoveSubs={this.handleRemoveSubs}
           handleNewSub={this.handleNewSub}
         />
-        <section className={'section'}>
-          {this.displayContent()}
-        </section>
+        <section className={'section'}>{this.displayContent()}</section>
       </>
     )
   }
